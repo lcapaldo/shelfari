@@ -37,10 +37,7 @@ class Shelfari
     JSON.generate(user)
   end
 
-  def search(title)
-    url = @@base_url+'/search/books?Keywords='+title.gsub(/\s/, '%20')
-    page = @agent.get(url)
-    
+  def extract_books(page)
     results = Hash.new
     raw_books = page.parser.xpath("//a[@class='book']").each{ |raw_book|
       if !results.has_key?(raw_book['bookid'])
@@ -53,7 +50,13 @@ class Shelfari
         results[raw_book['bookid']] = book
       end
     }
-
+    results
+  end
+ 
+  def search(title)
+    url = @@base_url+'/search/books?Keywords='+title.gsub(/\s/, '%20')
+    page = @agent.get(url)
+    results = extract_books(page)
     return JSON.generate(results)
   end
 end
