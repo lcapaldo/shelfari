@@ -28,10 +28,13 @@ class Shelfari
   def user(username)
     url = @@base_url+'/'+username
     page = @agent.get(url)
+
+    desc = page.parser.at('meta[@name="description"]')
    
     user = [
-      :description => page.parser.at('meta[@name="description"]')[:content],
-      :avatar => page.parser.xpath("//a[@class='avatar']//img").first['src']
+      :description => desc ? desc[:content] : nil,
+      :avatar => page.parser.xpath("//a[@class='avatar']//img").first['src'],
+      :books => extract_books(page)
     ]
 
     JSON.generate(user)
