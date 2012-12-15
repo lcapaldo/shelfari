@@ -62,4 +62,20 @@ class Shelfari
     results = extract_books(page)
     return JSON.generate(results)
   end
+
+  def now_reading(user)
+    url = @@base_url+"/#{user}/lists/NowReading"
+    page = @agent.get(url)
+    page.parser.xpath("//script").each do |raw_script|
+      raw_script.children.each do |kid| 
+        if kid.content =~ /shelfPrePopulation/
+          # trim the front
+          val = kid.content.sub(/^[^{]*/,'')
+          # trim the back 
+          val.sub!(/;\s*$/, '')
+          return val
+        end
+      end
+    end
+  end
 end
